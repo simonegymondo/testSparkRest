@@ -61,7 +61,8 @@ public class TransactionServiceTest {
         transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
         transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
 
-        assertEquals(20.0, transactionService.sumSiblings(2L));
+        assertEquals(0.0, transactionService.getChildrenSum(2L));
+        assertEquals(20.0, transactionService.getChildrenSum(1L));
     }
 
     @Test
@@ -72,7 +73,7 @@ public class TransactionServiceTest {
         transactionService.insert(new Transaction(4L, -310.0, 1L, TransactionType.CARS));
         transactionService.insert(new Transaction(5L, -310.0, 1L, TransactionType.CARS));
 
-        assertEquals(-810.0, transactionService.sumSiblings(2L));
+        assertEquals(-810.0, transactionService.getChildrenSum(1L));
     }
 
     @Test
@@ -81,11 +82,11 @@ public class TransactionServiceTest {
         transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
         transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
 
-        assertEquals(20.0, transactionService.sumSiblings(2L), 20.0);
-        assertEquals(20.0, transactionService.sumSiblings(3L), 20.0);
+        assertEquals(20.0, transactionService.getChildrenSum(2L), 20.0);
+        assertEquals(20.0, transactionService.getChildrenSum(3L), 20.0);
         transactionService.insert(new Transaction(2L, 20.0, 1L, TransactionType.CARS));
 
-        assertEquals(30.0, transactionService.sumSiblings(3L));
+        assertEquals(30.0, transactionService.getChildrenSum(1L));
     }
 
     @Test
@@ -94,12 +95,12 @@ public class TransactionServiceTest {
         transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
         transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
 
-        assertEquals(20.0, transactionService.sumSiblings(2L), 20.0);
-        assertEquals(20.0, transactionService.sumSiblings(3L), 20.0);
+        assertEquals(20.0, transactionService.getChildrenSum(2L), 20.0);
+        assertEquals(20.0, transactionService.getChildrenSum(3L), 20.0);
         transactionService.insert(new Transaction(2L, -20.0, 1L, TransactionType.CARS));
         transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
 
-        assertEquals(-10.0, transactionService.sumSiblings(3L));
+        assertEquals(-10.0, transactionService.getChildrenSum(1L));
     }
 
     @Test(expected = InvalidTransactionException.class)

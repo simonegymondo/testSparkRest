@@ -88,7 +88,7 @@ public class ApiTest {
         transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
         transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
         transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
-        HttpServletResponse response = mockServer.mockRequest("GET", "/transactionservice/sum/2/", "");
+        HttpServletResponse response = mockServer.mockRequest("GET", "/transactionservice/sum/1/", "");
         assertEquals(200, response.getStatus());
 
         assertThatJson(response.getOutputStream().toString())

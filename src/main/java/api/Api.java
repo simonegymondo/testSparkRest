@@ -90,7 +90,7 @@ public class Api {
                     final Long transactionId = Long.valueOf(req.params(":id"));
                     return dataToJson(Collections.unmodifiableMap(Stream.of(
                             new AbstractMap.SimpleEntry<>("amount",
-                                    transactionService.sumSiblings(transactionId)))
+                                    transactionService.getChildrenSum(transactionId)))
                             .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))));
                 });
         /**

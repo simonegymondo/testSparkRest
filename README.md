@@ -48,10 +48,9 @@ The result will be in case everything is ok:
     { status: ok }
 
 ##### GET "/transactionservice/sum/{:id}"
-It returns the sum of the transaction of all the siblings of the given 
-transaction id plus itself. Two transactions are sibling if they have the sam parentId. If the transaction of given id does not exists it returns 404.
-If the transaction has no parentId, it returns 0.
-
+It returns the sum of the transaction which have {:id} as parent id.
+If the transaction of given id does not exists it returns 404.
+If the no transaction links to the {:id} it returns 0.
 The result will be in JSON format as for example:
     ...
     { amount: 10.0 }

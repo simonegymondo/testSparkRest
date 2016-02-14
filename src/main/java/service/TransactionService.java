@@ -102,16 +102,9 @@ public class TransactionService {
      * @param transactionId
      * @return
      */
-    public synchronized Double sumSiblings(Long transactionId) {
+    public synchronized Double getChildrenSum(Long transactionId) {
         Objects.requireNonNull(transactionId);
-        Transaction transaction = get(transactionId);
-
-        // No parent
-        if (transaction.getParentId() == null) {
-            return .0;
-        }
-
-        return getEntity(transaction.getParentId()).getSumOfChildren();
+        return get(transactionId).getSumOfChildren();
     }
 
     /**
