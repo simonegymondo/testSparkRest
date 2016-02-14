@@ -8,5 +8,8 @@ package model;
  */
 public enum TransactionType {
     CARS,
-    SHOPPING
+    SHOPPING,
+    AUDIO,
+    VIDEO,
+    GENERIC
 }

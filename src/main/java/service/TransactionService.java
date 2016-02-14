@@ -19,14 +19,16 @@ import java.util.stream.Collectors;
 public class TransactionService {
 
     /**
-     * Stores the transaction data.
+     * Stores the {@link Transaction} data.
      */
     private Map<Long, Transaction> storage = new HashMap<>();
     /**
-     * Maps the type to transaction entities.
+     * Maps a type to {@link Transaction} entities.
      */
     private Map<TransactionType, Set<Transaction>> typeIndex = new HashMap<>();
-
+    /**
+     * Hibernate validators.
+     */
     private Validator validator;
 
     public TransactionService() {
@@ -35,29 +37,28 @@ public class TransactionService {
     }
 
     /**
-     * Insert a transaction into the storage.
+     * Insert a {@link Transaction} into the storage.
      * @param transaction
      */
     public synchronized Transaction insert(Transaction transaction) {
-        Objects.requireNonNull(transaction);
         Set<ConstraintViolation<Transaction>> validation = validator.validate(transaction);
 
         if (validation.size() > 0) {
             throw new InvalidTransactionException(validation);
         }
 
-        // Copy the object to simulate a persistence layer
-        Transaction entity = new Transaction(transaction);
+        // Copy the object to have persistence.
+        final Transaction entity = new Transaction(transaction);
 
         // Add to the parent sum.
         if (transaction.getParentId() != null) {
-            if (transaction.getParentId() == transaction.getId()) {
+            if (transaction.getParentId().equals(transaction.getId())) {
                 throw new InvalidTransactionException("Parent id is equal to transaction id");
             }
 
-            Transaction parentEntity = getEntity(transaction.getParentId());
+            final Transaction parentEntity = getEntity(transaction.getParentId());
             parentEntity.addToSumOfChildren(transaction.getAmount());
-            Transaction existingTransaction = storage.get(transaction.getId());
+            final Transaction existingTransaction = storage.get(transaction.getId());
             if (existingTransaction != null) {
                 parentEntity.addToSumOfChildren(-existingTransaction.getAmount());
             }
@@ -76,7 +77,7 @@ public class TransactionService {
     }
 
     /**
-     * Returns the transaction entity.
+     * Returns the {@link Transaction} entity.
      *
      * @param id
      * @return
@@ -89,7 +90,7 @@ public class TransactionService {
     }
 
     /**
-     * Fetches a transaction of the given id.
+     * Fetches a {@link Transaction} of the given id.
      * @param id
      */
     public synchronized Transaction get(Long id) {
@@ -114,7 +115,7 @@ public class TransactionService {
     }
 
     /**
-     * Get list of transactions by type.
+     * Get list of {@link Transaction} by type.
      *
      * @param transactionType
      * @return

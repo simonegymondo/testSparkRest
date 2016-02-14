@@ -2,13 +2,15 @@ package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Encloses a {@link Transaction} and some additional data.
+ * Stores information about a transaction and its children if any.
  *
  * Created by simone on 13/02/16.
  */
@@ -118,5 +120,23 @@ public class Transaction {
 
     public void addToSumOfChildren(Double sumOfChildren) {
         this.sumOfChildren += sumOfChildren;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transaction that = (Transaction) o;
+        return Objects.equals(transactionList, that.transactionList) &&
+                Objects.equals(sumOfChildren, that.sumOfChildren) &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(amount, that.amount) &&
+                Objects.equals(parentId, that.parentId) &&
+                transactionType == that.transactionType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(transactionList, sumOfChildren, id, amount, parentId, transactionType);
     }
 }

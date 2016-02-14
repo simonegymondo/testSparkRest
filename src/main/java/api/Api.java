@@ -69,9 +69,12 @@ public class Api {
         put(TRANSACTION_SERVICE_ENDPOINT + TRANSACTION_ENDPOINT + "/:id/",
                 (req, res) -> {
                     ObjectMapper mapper = new ObjectMapper();
-                    Transaction creation = mapper.readValue(req.body(), Transaction.class);
+                    final Transaction creation = mapper.readValue(req.body(), Transaction.class);
 
-                    Long transactionId = Long.valueOf(req.params(":id"));
+                    if (creation.getAmount().isInfinite()) {
+                        throw new InvalidTransactionException("Amount is too big");
+                    }
+                    final Long transactionId = Long.valueOf(req.params(":id"));
                     creation.setId(transactionId);
                     transactionService.insert(creation);
                     return dataToJson(Collections.unmodifiableMap(Stream.of(
@@ -83,7 +86,7 @@ public class Api {
          */
         get(TRANSACTION_SERVICE_ENDPOINT + SUM_ENDPOINT + "/:id/",
                 (req, res) -> {
-                    Long transactionId = Long.valueOf(req.params(":id"));
+                    final Long transactionId = Long.valueOf(req.params(":id"));
                     return dataToJson(Collections.unmodifiableMap(Stream.of(
                             new AbstractMap.SimpleEntry<>("amount",
                                     transactionService.sumSiblings(transactionId)))
@@ -106,6 +109,14 @@ public class Api {
          */
         exception(TransactionNotFoundException.class, (e, request, response) -> {
             response.status(Response.SC_NOT_FOUND);
+            response.body(handleErrorData(Arrays.asList(e.getMessage())));
+        });
+
+        /**
+         * Exception mapping
+         */
+        exception(NumberFormatException.class, (e, request, response) -> {
+            response.status(Response.SC_BAD_REQUEST);
             response.body(handleErrorData(Arrays.asList(e.getMessage())));
         });
 

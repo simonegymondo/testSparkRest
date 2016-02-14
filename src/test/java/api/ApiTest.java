@@ -1,9 +1,5 @@
 package api;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-
 import model.Transaction;
 import model.TransactionType;
 import net.javacrumbs.jsonunit.JsonAssert;
@@ -15,12 +11,7 @@ import service.TransactionService;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 /**
@@ -45,14 +36,23 @@ public class ApiTest {
 
     @Test
     public void invalidTransactionPut() throws IOException, ServletException {
-        HttpServletResponse response = mockServer.mockRequest("PUT", "/transactionservice/transaction/1/", "{\"amount\": 10.0}");
+        HttpServletResponse response = mockServer.mockRequest("PUT", "/transactionservice/transaction/1/"
+                , "{\"amount\": 10.0}");
         assertEquals(400, response.getStatus());
+    }
 
+    @Test
+    public void invalidTransactionOverflowPut() throws IOException, ServletException {
+        HttpServletResponse response = mockServer.mockRequest("PUT", "/transactionservice/transaction/1/"
+                , "{\"transactionType\" : \"CARS\"" +
+                        ", \"amount\": 1" + Double.MAX_VALUE + "}");
+        assertEquals(400, response.getStatus());
     }
 
     @Test
     public void validTransactionPut() throws IOException, ServletException {
-        HttpServletResponse response = mockServer.mockRequest("PUT", "/transactionservice/transaction/1/", "{\"transactionType\" : \"CARS\", \"amount\": 10.0}");
+        HttpServletResponse response = mockServer.mockRequest("PUT", "/transactionservice/transaction/1/"
+                , "{\"transactionType\" : \"CARS\", \"amount\": 10.0}");
         assertEquals(200, response.getStatus());
         JsonAssert.assertJsonEquals("{\"status\": \"ok\"}", response.getOutputStream().toString());
     }
@@ -65,6 +65,14 @@ public class ApiTest {
                 .node("status").isEqualTo("nok")
                 .node("errors").isArray().ofLength(1);
     }
+
+    @Test
+    public void invalidTransactionIdGet() throws IOException, ServletException {
+        transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
+        HttpServletResponse response = mockServer.mockRequest("GET", "/transactionservice/transaction/null/", "");
+        assertEquals(400, response.getStatus());
+    }
+
 
     @Test
     public void validTransactionGet() throws IOException, ServletException {

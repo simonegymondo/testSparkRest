@@ -2,15 +2,10 @@ package unit;
 
 import model.Transaction;
 import model.TransactionType;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import service.TransactionService;
 import service.exceptions.InvalidTransactionException;
 import service.exceptions.TransactionNotFoundException;
-
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -35,6 +30,12 @@ public class TransactionServiceTest {
         transactionService.insert(transaction);
     }
 
+    @Test(expected = InvalidTransactionException.class)
+    public void nullAmountTransactionTest() {
+        Transaction transaction = new Transaction(1L, null, null, TransactionType.CARS);
+        transactionService.insert(transaction);
+    }
+
     @Test
     public void transactionInsertionTest() {
         Transaction transaction = new Transaction(1L, 10.0, null, TransactionType.CARS);
@@ -56,32 +57,49 @@ public class TransactionServiceTest {
 
     @Test
     public void transactionSumTest() {
-        Transaction transaction1 = new Transaction(1L, 10.0, null, TransactionType.CARS);
-        Transaction transaction2 = new Transaction(2L, 10.0, 1L, TransactionType.CARS);
-        Transaction transaction3 = new Transaction(3L, 10.0, 1L, TransactionType.CARS);
-
-        transactionService.insert(transaction1);
-        transactionService.insert(transaction2);
-        transactionService.insert(transaction3);
+        transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
+        transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
 
         assertEquals(20.0, transactionService.sumSiblings(2L));
     }
 
     @Test
-    public void transactionSumUpdateTest() {
-        Transaction transaction1 = new Transaction(1L, 10.0, null, TransactionType.CARS);
-        Transaction transaction2 = new Transaction(2L, 10.0, 1L, TransactionType.CARS);
-        Transaction transaction3 = new Transaction(3L, 10.0, 1L, TransactionType.CARS);
+    public void transactionNegativeSumTest() {
+        transactionService.insert(new Transaction(1L, -10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(2L, 120.0, 1L, TransactionType.CARS));
+        transactionService.insert(new Transaction(3L, -310.0, 1L, TransactionType.CARS));
+        transactionService.insert(new Transaction(4L, -310.0, 1L, TransactionType.CARS));
+        transactionService.insert(new Transaction(5L, -310.0, 1L, TransactionType.CARS));
 
-        transactionService.insert(transaction1);
-        transactionService.insert(transaction2);
-        transactionService.insert(transaction3);
+        assertEquals(-810.0, transactionService.sumSiblings(2L));
+    }
+
+    @Test
+    public void transactionSumUpdateTest() {
+        transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
+        transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
 
         assertEquals(20.0, transactionService.sumSiblings(2L), 20.0);
         assertEquals(20.0, transactionService.sumSiblings(3L), 20.0);
-        Transaction transaction4 = new Transaction(2L, 20.0, 1L, TransactionType.CARS);
-        transactionService.insert(transaction4);
+        transactionService.insert(new Transaction(2L, 20.0, 1L, TransactionType.CARS));
+
         assertEquals(30.0, transactionService.sumSiblings(3L));
+    }
+
+    @Test
+    public void transactionSumNegativeUpdateTest() {
+        transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
+        transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
+
+        assertEquals(20.0, transactionService.sumSiblings(2L), 20.0);
+        assertEquals(20.0, transactionService.sumSiblings(3L), 20.0);
+        transactionService.insert(new Transaction(2L, -20.0, 1L, TransactionType.CARS));
+        transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
+
+        assertEquals(-10.0, transactionService.sumSiblings(3L));
     }
 
     @Test(expected = InvalidTransactionException.class)
