@@ -5,8 +5,10 @@ import model.TransactionType;
 import net.javacrumbs.jsonunit.JsonAssert;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import service.TransactionService;
+import spark.SparkBase;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +23,11 @@ public class ApiTest {
 
     MockServer mockServer;
     TransactionService transactionService;
+
+    @BeforeClass
+    public static void setUpServer() throws Exception {
+        SparkBase.setPort(4568);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -38,6 +45,20 @@ public class ApiTest {
     public void invalidTransactionPut() throws IOException, ServletException {
         HttpServletResponse response = mockServer.mockRequest("PUT", "/transactionservice/transaction/1/"
                 , "{\"amount\": 10.0}");
+        assertEquals(400, response.getStatus());
+    }
+
+    @Test
+    public void invalidJSONTransactionPut() throws IOException, ServletException {
+        HttpServletResponse response = mockServer.mockRequest("PUT", "/transactionservice/transaction/1/"
+                , "<hi>\"amount\": 10.0</hi>");
+        assertEquals(400, response.getStatus());
+    }
+
+    @Test
+    public void invalidJSONFieldTransactionPut() throws IOException, ServletException {
+        HttpServletResponse response = mockServer.mockRequest("PUT", "/transactionservice/transaction/1/"
+                , "{\"yo\": 1, \"transactionType\" : \"CARS\", \"amount\": 10.0}");
         assertEquals(400, response.getStatus());
     }
 

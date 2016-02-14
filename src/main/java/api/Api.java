@@ -1,5 +1,6 @@
 package api;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -69,8 +70,15 @@ public class Api {
          */
         put(TRANSACTION_SERVICE_ENDPOINT + TRANSACTION_ENDPOINT + "/:id/",
                 (req, res) -> {
+                    final Transaction creation;
                     ObjectMapper mapper = new ObjectMapper();
-                    final Transaction creation = mapper.readValue(req.body(), Transaction.class);
+                    try {
+                        creation = mapper.readValue(req.body(), Transaction.class);
+                    } catch (JsonParseException e) {
+                        throw new InvalidTransactionException("Invalid JSON");
+                    } catch (Exception e) {
+                        throw new InvalidTransactionException(e.getMessage());
+                    }
 
                     if (creation.getAmount().isInfinite()) {
                         throw new InvalidTransactionException("Amount is too big");
