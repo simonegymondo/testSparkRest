@@ -17,6 +17,8 @@ import static junit.framework.TestCase.assertEquals;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 /**
+ * Api testing using Mock Spark Jetty.
+ * 
  * Created by simone on 13/02/16.
  */
 public class ApiTest {
