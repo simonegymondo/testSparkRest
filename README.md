@@ -38,6 +38,7 @@ It adds a new transaction with id {:id} as described from the body.
 The body accepts JSON format only. If the transaction already exists it is replaced with the new transaction.
 
 Example of body:
+
     ...
     {
       amount: 10.0, 
@@ -46,6 +47,7 @@ Example of body:
     }
 
 The result will be in case everything is ok:
+
     ...
     { status: ok }
 
@@ -54,12 +56,14 @@ It returns the sum of the transaction which have {:id} as parent id.
 If the transaction of given id does not exists it returns 404.
 If no transaction links to the {:id} it returns 0.
 The result will be in JSON format as for example:
+
     ...
     { amount: 10.0 }
 
 ##### GET "/transactionservice/type/{:typeId}"
 It returns a list of ids of the given type. It returns 404 if the type 
 does not exists. An example of return value is:
+
     ...
     [1, 2]
 
@@ -69,6 +73,7 @@ Error Handling
 In case of errors, along with the return type you get a list of error messages:
 
 Example of insertion with bad data:
+
     ...
     {
       amount: 10.0, 
@@ -76,6 +81,7 @@ Example of insertion with bad data:
     }
 
 You will receive:
+
     ...
     {
       status: "nok", 
