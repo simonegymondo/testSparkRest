@@ -47,8 +47,18 @@ public class TransactionService {
             throw new InvalidTransactionException(validation);
         }
 
+        // not null if a transaction with same id already exists.
+        final Transaction existingTransaction = storage.get(transaction.getId());
         // Copy the object to have persistence.
         final Transaction entity = new Transaction(transaction);
+
+        // Remove previous data.
+        if (existingTransaction != null) {
+            if (existingTransaction.getParentId() != null) {
+                getEntity(existingTransaction.getParentId()).addToSumOfChildren(-existingTransaction.getAmount());
+            }
+            typeIndex.get(existingTransaction.getTransactionType()).remove(existingTransaction);
+        }
 
         // Add to the parent sum.
         if (transaction.getParentId() != null) {
@@ -58,10 +68,6 @@ public class TransactionService {
 
             final Transaction parentEntity = getEntity(transaction.getParentId());
             parentEntity.addToSumOfChildren(transaction.getAmount());
-            final Transaction existingTransaction = storage.get(transaction.getId());
-            if (existingTransaction != null) {
-                parentEntity.addToSumOfChildren(-existingTransaction.getAmount());
-            }
         }
 
         // Insert into the storage.

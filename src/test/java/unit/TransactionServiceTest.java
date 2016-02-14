@@ -9,6 +9,7 @@ import service.exceptions.TransactionNotFoundException;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -90,6 +91,33 @@ public class TransactionServiceTest {
     }
 
     @Test
+    public void transactionSumUpdateParentIdTest() {
+        transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
+        transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
+
+        assertEquals(20.0, transactionService.getChildrenSum(2L), 20.0);
+        assertEquals(20.0, transactionService.getChildrenSum(3L), 20.0);
+        transactionService.insert(new Transaction(2L, 20.0, 3L, TransactionType.CARS));
+
+        assertEquals(10.0, transactionService.getChildrenSum(1L));
+        assertEquals(20.0, transactionService.getChildrenSum(3L));
+    }
+
+    @Test
+    public void transactionSumUpdateParentIdFromNullTest() {
+        transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
+        transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
+
+        assertEquals(20.0, transactionService.getChildrenSum(2L), 20.0);
+        assertEquals(20.0, transactionService.getChildrenSum(3L), 20.0);
+        transactionService.insert(new Transaction(2L, 20.0, null, TransactionType.CARS));
+
+        assertEquals(10.0, transactionService.getChildrenSum(1L));
+    }
+
+    @Test
     public void transactionSumNegativeUpdateTest() {
         transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
         transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
@@ -115,7 +143,7 @@ public class TransactionServiceTest {
         transactionService.insert(transaction);
     }
 
-    @Test()
+    @Test
     public void transactionSameType() {
         Transaction transaction1 = new Transaction(1L, 10.0, null, TransactionType.CARS);
         Transaction transaction2 = new Transaction(2L, 10.0, null, TransactionType.CARS);
@@ -124,13 +152,26 @@ public class TransactionServiceTest {
         transactionService.insert(transaction2);
         transactionService.insert(transaction3);
 
-        assertTrue(new HashSet(transactionService.getByType(TransactionType.CARS))
-                .containsAll(new HashSet(Arrays.asList(1L, 2L))));
-        assertTrue(new HashSet(transactionService.getByType(TransactionType.SHOPPING))
-                .containsAll(new HashSet(Arrays.asList(3L))));
+        compareSets(new HashSet(Arrays.asList(1L, 2L)), new HashSet<>(transactionService.getByType(TransactionType.CARS)));
+        compareSets(new HashSet(Arrays.asList(3L)), new HashSet<>(transactionService.getByType(TransactionType.SHOPPING)));
     }
 
-    @Test()
+    @Test
+    public void transactionSameTypeUpdateType() {
+        transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(2L, 10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(3L, 10.0, null, TransactionType.SHOPPING));
+
+        compareSets(new HashSet(Arrays.asList(1L, 2L)), new HashSet<>(transactionService.getByType(TransactionType.CARS)));
+        compareSets(new HashSet(Arrays.asList(3L)), new HashSet<>(transactionService.getByType(TransactionType.SHOPPING)));
+
+        transactionService.insert(new Transaction(3L, 10.0, null, TransactionType.CARS));
+
+        compareSets(new HashSet(Arrays.asList(1L, 2L, 3L)), new HashSet(transactionService.getByType(TransactionType.CARS)));
+        compareSets(new HashSet(Arrays.asList()), new HashSet(transactionService.getByType(TransactionType.SHOPPING)));
+    }
+
+    @Test
     public void transactionSameTypeIncludedOnce() {
         Transaction transaction1 = new Transaction(1L, 10.0, null, TransactionType.CARS);
         Transaction transaction2 = new Transaction(1L, 20.0, null, TransactionType.CARS);
@@ -138,8 +179,17 @@ public class TransactionServiceTest {
         transactionService.insert(transaction1);
         transactionService.insert(transaction2);
 
-        assertTrue(new HashSet(transactionService.getByType(TransactionType.CARS))
-                .containsAll(new HashSet(Arrays.asList(1L))));
+        compareSets(new HashSet(Arrays.asList(1L)), new HashSet(transactionService.getByType(TransactionType.CARS)));
+    }
+
+    /**
+     * Compare two sets by size and content.
+     * @param set1
+     * @param set2
+     */
+    private void compareSets(Set<?> set1, Set<?> set2) {
+        assertEquals(set1.size(), set2.size());
+        assertTrue(set1.containsAll(set2));
     }
 }
 
