@@ -14,13 +14,14 @@ Service
 -------
 
 The service provide a basic interface for transactions. A transaction is defined as
+
     ...
-        {
-          id: Long,
-          parentId: Long or null,
-          transctionType: any of the following [SHOPPING, CARS, AUDIO, VIDEO, GENERIC],
-          amount: Double
-        }
+    {
+      id: Long,
+      parentId: Long or null,
+      transctionType: any of the following [SHOPPING, CARS, AUDIO, VIDEO, GENERIC],
+      amount: Double
+    }
 
 API
 -------
