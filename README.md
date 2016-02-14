@@ -1,7 +1,8 @@
 Spark API Testing
 ===========
 
-This is a simple API server in Java Spark. It includes a simple Spring integrated service which stores
+This is a simple API server in Java Spark and it currently runs
+on OpenJDK8. It is not compatible with OracleJDK8. It includes a simple Spring integrated service which stores
 data in memory. The service is thread safe and is limited in space by the amount of memory allocated for 
 the running process. It also includes unit and API testing.
 
