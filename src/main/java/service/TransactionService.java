@@ -25,7 +25,7 @@ public class TransactionService {
     /**
      * Maps a type to {@link Transaction} entities.
      */
-    private Map<TransactionType, Set<Transaction>> typeIndex = new HashMap<>();
+    private Map<TransactionType, Set<Long>> typeIndex = new HashMap<>();
     /**
      * Hibernate validators.
      */
@@ -57,7 +57,7 @@ public class TransactionService {
             if (existingTransaction.getParentId() != null) {
                 getEntity(existingTransaction.getParentId()).addToSumOfChildren(-existingTransaction.getAmount());
             }
-            typeIndex.get(existingTransaction.getTransactionType()).remove(existingTransaction);
+            typeIndex.get(existingTransaction.getTransactionType()).remove(existingTransaction.getId());
         }
 
         // Add to the parent sum.
@@ -82,7 +82,7 @@ public class TransactionService {
         if (typeIndex.get(transaction.getTransactionType()) == null) {
             typeIndex.put(transaction.getTransactionType(), new HashSet<>());
         }
-        typeIndex.get(transaction.getTransactionType()).add(entity);
+        typeIndex.get(transaction.getTransactionType()).add(entity.getId());
 
         return transaction;
     }
@@ -124,10 +124,8 @@ public class TransactionService {
      * @param transactionType
      * @return
      */
-    public synchronized List<Long> getByType(TransactionType transactionType) {
+    public synchronized Set<Long> getByType(TransactionType transactionType) {
         Objects.requireNonNull(transactionType);
-        return typeIndex.get(transactionType).stream()
-                .map(Transaction::getId)
-                .collect(Collectors.toList());
+        return typeIndex.get(transactionType);
     }
 }
