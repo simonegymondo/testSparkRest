@@ -6,7 +6,6 @@ on OpenJDK8. It is not compatible with OracleJDK8. It includes a simple Spring i
 data in memory. The service is thread safe and is limited in space by the amount of memory allocated for 
 the running process. It also includes unit and API testing.
 
-    ...
     mvn clean install // to compile and test
     mvn exec:java     // to run the server on localhost:4567
 
@@ -15,7 +14,6 @@ Service
 
 The service provide a basic interface for transactions. A transaction is defined as
 
-    ...
     {
       id: Long,
       parentId: Long or null,
@@ -39,7 +37,6 @@ The body accepts JSON format only. If the transaction already exists it is repla
 
 Example of body:
 
-    ...
     {
       amount: 10.0, 
       parentId: 1,
@@ -48,7 +45,6 @@ Example of body:
 
 The result will be in case everything is ok:
 
-    ...
     { status: ok }
 
 ##### GET "/transactionservice/sum/{:id}"
@@ -57,14 +53,12 @@ If the transaction of given id does not exists it returns 404.
 If no transaction links to the {:id} it returns 0.
 The result will be in JSON format as for example:
 
-    ...
     { amount: 10.0 }
 
 ##### GET "/transactionservice/type/{:typeId}"
 It returns a list of ids of the given type. It returns 404 if the type 
 does not exists. An example of return value is:
 
-    ...
     [1, 2]
 
 Error Handling
@@ -74,7 +68,6 @@ In case of errors, along with the return type you get a list of error messages:
 
 Example of insertion with bad data:
 
-    ...
     {
       amount: 10.0, 
       parentId: 1,
@@ -82,7 +75,6 @@ Example of insertion with bad data:
 
 You will receive:
 
-    ...
     {
       status: "nok", 
       errors: ["transactionType cannot be null"]
