@@ -43,13 +43,27 @@ public class TransactionServiceTest {
 
         transactionService.insert(transaction);
         assertEquals((Long)1L, transactionService.get(1L).getId());
+        assertEquals(10.0, transactionService.get(1L).getAmount());
+        assertEquals(null, transactionService.get(1L).getParentId());
+        assertEquals(TransactionType.CARS, transactionService.get(1L).getTransactionType());
         assertTrue(transaction != transactionService.get(1L));
+    }
+
+    @Test(expected = InvalidTransactionException.class)
+    public void transactionCyclicInsertionTest() {
+        Transaction transaction = new Transaction(1L, 10.0, null, TransactionType.CARS);
+        Transaction transaction2 = new Transaction(2L, 10.0, 1L, TransactionType.CARS);
+        transactionService.insert(transaction);
+        transactionService.insert(transaction2);
+        transaction.setParentId(2L);
+        transactionService.insert(transaction);
     }
 
     @Test
     public void transactionInsertionUpdatedTest() {
         Transaction transaction = new Transaction(1L, 10.0, null, TransactionType.CARS);
         transactionService.insert(transaction);
+        assertEquals(10.0, transactionService.get(1L).getAmount());
         assertEquals((Long)1L, transactionService.get(1L).getId());
         transaction.setAmount(20.0);
         transactionService.insert(transaction);
@@ -57,10 +71,15 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void transactionSumTest() {
+    public void transactionMultiInsertionAndSumTest() {
         transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
         transactionService.insert(new Transaction(2L, 10.0, 1L, TransactionType.CARS));
         transactionService.insert(new Transaction(3L, 10.0, 1L, TransactionType.CARS));
+
+        assertEquals((Long)2L, transactionService.get(2L).getId());
+        assertEquals(10.0, transactionService.get(2L).getAmount());
+        assertEquals((Long)1L, transactionService.get(2L).getParentId());
+        assertEquals(TransactionType.CARS, transactionService.get(2L).getTransactionType());
 
         assertEquals(0.0, transactionService.getChildrenSum(2L));
         assertEquals(20.0, transactionService.getChildrenSum(1L));
@@ -145,12 +164,9 @@ public class TransactionServiceTest {
 
     @Test
     public void transactionSameType() {
-        Transaction transaction1 = new Transaction(1L, 10.0, null, TransactionType.CARS);
-        Transaction transaction2 = new Transaction(2L, 10.0, null, TransactionType.CARS);
-        Transaction transaction3 = new Transaction(3L, 10.0, null, TransactionType.SHOPPING);
-        transactionService.insert(transaction1);
-        transactionService.insert(transaction2);
-        transactionService.insert(transaction3);
+        transactionService.insert(new Transaction(1L, 10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(2L, 10.0, null, TransactionType.CARS));
+        transactionService.insert(new Transaction(3L, 10.0, null, TransactionType.SHOPPING));
 
         compareSets(new HashSet(Arrays.asList(1L, 2L)), new HashSet<>(transactionService.getByType(TransactionType.CARS)));
         compareSets(new HashSet(Arrays.asList(3L)), new HashSet<>(transactionService.getByType(TransactionType.SHOPPING)));

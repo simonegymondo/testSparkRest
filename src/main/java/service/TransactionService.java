@@ -63,10 +63,15 @@ public class TransactionService {
         // Add to the parent sum.
         if (transaction.getParentId() != null) {
             if (transaction.getParentId().equals(transaction.getId())) {
-                throw new InvalidTransactionException("Parent id is equal to transaction id");
+                throw new InvalidTransactionException("Parent id is equal to transaction id.");
             }
 
             final Transaction parentEntity = getEntity(transaction.getParentId());
+            if (parentEntity != null
+                    && parentEntity.getParentId() != null
+                    && parentEntity.getParentId().equals(transaction.getId())) {
+                throw new InvalidTransactionException("Cyclic reference. The parent id of this transaction points to on of its children");
+            }
             parentEntity.addToSumOfChildren(transaction.getAmount());
         }
 
