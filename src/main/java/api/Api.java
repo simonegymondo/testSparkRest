@@ -2,6 +2,7 @@ package api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import model.Transaction;
 import model.TransactionType;
 
@@ -103,6 +104,14 @@ public class Api {
                         throw new TransactionTypeNotFoundException("Cannot find transaction type: " + req.params(":typeId"));
                     }
                 });
+
+        /**
+         * Exception mapping
+         */
+        exception(InvalidFormatException.class, (e, request, response) -> {
+            response.status(Response.SC_BAD_REQUEST);
+            response.body(handleErrorData(Arrays.asList(e.getMessage())));
+        });
 
         /**
          * Exception mapping
