@@ -52,7 +52,7 @@ The result will be in case everything is ok:
 ##### GET "/transactionservice/sum/{:id}"
 It returns the sum of the transaction which have {:id} as parent id.
 If the transaction of given id does not exists it returns 404.
-If the no transaction links to the {:id} it returns 0.
+If no transaction links to the {:id} it returns 0.
 The result will be in JSON format as for example:
     ...
     { amount: 10.0 }
