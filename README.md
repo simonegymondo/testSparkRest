@@ -14,6 +14,7 @@ Service
 -------
 
 The service provide a basic interface for transactions. A transaction is defined as
+
     ...
     {
       id: Long,
@@ -84,8 +85,8 @@ You will receive:
 Complexity
 -------
 
-All endpoints return the result syncrhonously in constant time O(1) if we do not take into cosideration the time needed for serialization.
+All endpoints return the result synchronously, in constant time O(1) if we do not take into cosideration the time needed for serialization.
 
 Notes
 -------
-This project uses Java Spark framework for creating a simple REST API. It is quite minimalistic. It also integrates a simple Spring context. Testing is performed with JUnit and mockito. API testing are done also in JUnit using a mocked Jetty server. 
+This project uses Java Spark framework for creating a simple REST API. It is quite minimalistic. It also integrates a simple Spring context. Testing is performed with JUnit and Mockito. API testing is done also in JUnit using a mocked Jetty server. 
