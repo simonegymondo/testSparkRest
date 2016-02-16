@@ -105,7 +105,7 @@ public class TransactionService {
      * @param id
      */
     public synchronized Transaction get(Long id) {
-        return getEntity(id);
+        return new Transaction(getEntity(id));
     }
 
     /**
